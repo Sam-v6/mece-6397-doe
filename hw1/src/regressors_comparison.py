@@ -104,5 +104,5 @@ for regressor in results:
     plt.plot([min(y_test), max(y_test)], [min(y_test), max(y_test)], color='red', linestyle='--')
     plt.xlabel("Actual values")
     plt.ylabel("Predicted values")
-    plt.title(f"Predictions vs Actual for {regressor} with Design: {min_mse_design} and MSE: {"{:.5f}".format(mse)}")
+    plt.title(f"Predictions vs Actual for {regressor} with Design: {min_mse_design} and MSE: {"{:.5f}".format(min_mse)}")
     plt.savefig(os.path.join('hw1', 'output', regressor + ".png"))
