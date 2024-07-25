@@ -62,7 +62,7 @@ for factor in factors.keys():
     main_effects[factor] = experiment_design.groupby(factor)['Percent Reacted'].mean()
 
 #------------------------------------------------------------------------
-## DOE Interaction Effects Calculation
+# DOE Interaction Effects Calculation
 #------------------------------------------------------------------------
 # Calculate interaction effects
 interaction_effects = {}
@@ -73,7 +73,7 @@ for r in range(2, len(factor_names) + 1):
         interaction_effects[interaction_term] = experiment_design.groupby(list(combo))['Percent Reacted'].mean().unstack()
 
 #------------------------------------------------------------------------
-## Generate Contrast Output
+# Generate Contrast Output
 #------------------------------------------------------------------------
 contrast_output = pd.DataFrame(columns=['Factor/Interaction', 'Low Level Mean', 'High Level Mean', 'Effect'])
 contrast_rows = []
