@@ -9,7 +9,7 @@ import os
 # Additional imports
 import pandas as pd
 import numpy as np
-from pyDOE3 import fullfact
+from itertools import combinations
 import matplotlib.pyplot as plt 
 
 # Local imports
@@ -66,11 +66,11 @@ for factor in factors.keys():
 #------------------------------------------------------------------------
 # Calculate interaction effects
 interaction_effects = {}
-for factor1 in factors.keys():
-    for factor2 in factors.keys():
-        if factor1 != factor2:
-            interaction_term = f'{factor1} x {factor2}'
-            interaction_effects[interaction_term] = experiment_design.groupby([factor1, factor2])['Percent Reacted'].mean().unstack()
+factor_names = list(factors.keys())
+for r in range(2, len(factor_names) + 1):
+    for combo in combinations(factor_names, r):
+        interaction_term = ' x '.join(combo)
+        interaction_effects[interaction_term] = experiment_design.groupby(list(combo))['Percent Reacted'].mean().unstack()
 
 #------------------------------------------------------------------------
 ## Generate Contrast Output
@@ -103,9 +103,11 @@ for interaction_term, interaction_data in interaction_effects.items():
             'Effect': effect
         })
 
+# Save contrast and sort from highest to lowest
 contrast_output = pd.DataFrame(contrast_rows)
+contrast_output = contrast_output.sort_values(by='Effect', ascending=False)
 
-# Display the design, main effects, interaction effects, and contrast output
+# Print design and main effects
 print("Full Factorial Design and Percent Reacted:")
 print(experiment_design)
 print("\nMain Effects:")
@@ -113,10 +115,6 @@ for factor, effects in main_effects.items():
     print(f"\n{factor}:")
     print(effects)
 
-print("\nInteraction Effects:")
-for interaction_term, interaction_data in interaction_effects.items():
-    print(f"\n{interaction_term}:")
-    print(interaction_data)
-
-print("\nContrast Output:")
-print(contrast_output)
+# Save contrast to text file for interactions
+with open(os.path.join(os.getenv('USERPROFILE'),"repos","mece-6397-doe","project1","output","contrast_output.txt"), "w") as file:
+    file.write(contrast_output.to_string(index=False))
