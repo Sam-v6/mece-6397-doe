@@ -7516,45 +7516,8 @@ a.anchor-link {
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="Example-Scenario:">Example Scenario:<a class="anchor-link" href="#Example-Scenario:">¶</a></h3><ul>
-<li><p>Let's say we have a dataset with three features (X1, X2, X3) and we want to understand how different transformations (e.g., logarithmic, square root, and square) applied to these features affect the performance of a linear regression model.</p>
-</li>
-<li><p>We'll use a 2-level factorial design, considering the presence or absence of each transformation as the two levels.</p>
-</li>
-</ul>
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<p><strong>Required Libraries</strong></p>
-<ol>
-<li>pandas for data handling.</li>
-<li>numpy for numerical operations.</li>
-<li>sklearn for machine learning models and data splitting.</li>
-<li>pyDOE2 or pyDOE for generating factorial design matrices.</li>
-</ol>
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h3 id="Step-1:-Generate-the-Design-Matrix">Step 1: Generate the Design Matrix<a class="anchor-link" href="#Step-1:-Generate-the-Design-Matrix">¶</a></h3><ul>
-<li><p>First, we need to create a design matrix for our experiments, representing all combinations of the transformations.</p>
-</li>
-<li><p>In the example below we're designing a Full Factorial Design which includes all combinations</p>
-</li>
-</ul>
+<h1 id="Part-2,-3,-and-4-(Python-and-Discussion)">Part 2, 3, and 4 (Python and Discussion)<a class="anchor-link" href="#Part-2,-3,-and-4-(Python-and-Discussion)">¶</a></h1><p>My code for this can be found here as well on this public Github: <a href="https://github.com/Sam-v6/mece-6397-doe/tree/main/project1">https://github.com/Sam-v6/mece-6397-doe/tree/main/project1</a></p>
+<h2 id="Importing-Modules">Importing Modules<a class="anchor-link" href="#Importing-Modules">¶</a></h2><p>For starters I import pandas, numpy, and combonations which helps generate all possible combos to examine interactions of different factors.</p>
 </div>
 </div>
 </div>
@@ -7578,12 +7541,24 @@ a.anchor-link {
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">combinations</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span> 
 
 <span class="c1"># Local imports</span>
 <span class="c1"># None</span>
 </pre></div>
 </div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h2 id="Creating-the-design">Creating the design<a class="anchor-link" href="#Creating-the-design">¶</a></h2><p>To create the design I define 2 levels (a low and high) and 5 factors which matches the JMP simulation that we did in the prior section. Notice that for our factors I defined a low and high value similar to that of the jmp simulation.</p>
+<p>I generate the experiment design, which at this point is just 0 or 1s indicating low or highs. I save the history of each design into the "pattern" to ultimately display that in the final design output, similar to that of the JMP simulation. I then translate these low and high boolean values into the actual minimum or maximum values specific to the factor itself (for example feed rate low is 10 and high is 15).</p>
+<p>I then create a fictional response that we call the "percent reacted" using random number generation.</p>
 </div>
 </div>
 </div>
@@ -7627,14 +7602,25 @@ a.anchor-link {
         <span class="k">else</span><span class="p">:</span>
             <span class="n">experiment_design</span><span class="p">[</span><span class="n">factor</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">factors</span><span class="p">[</span><span class="n">factor</span><span class="p">][</span><span class="s2">"Max"</span><span class="p">]</span>
 
-<span class="c1"># Add the pattern and Percent Reacted to the design</span>
+<span class="c1"># Add the pattern and percent reacted to the design</span>
 <span class="n">experiment_design</span><span class="p">[</span><span class="s1">'Pattern'</span><span class="p">]</span> <span class="o">=</span> <span class="n">pattern_list</span>
 
-<span class="c1"># Display the design with Percent Reacteds</span>
+<span class="c1"># Display the design with percent reacted</span>
 <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>  <span class="c1"># For reproducibility</span>
 <span class="n">experiment_design</span><span class="p">[</span><span class="s1">'Percent Reacted'</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">rand</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">experiment_design</span><span class="p">))</span><span class="o">*</span><span class="mi">100</span>
 </pre></div>
 </div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h2 id="Main-Effects-Calculation">Main Effects Calculation<a class="anchor-link" href="#Main-Effects-Calculation">¶</a></h2><p>Similar to the main effects calculation in the provided code, I simply group the factors and evalute the mean for percent reacted to see how each factor plays into impacting overall percent reacted.</p>
 </div>
 </div>
 </div>
@@ -7654,6 +7640,17 @@ a.anchor-link {
     <span class="n">main_effects</span><span class="p">[</span><span class="n">factor</span><span class="p">]</span> <span class="o">=</span> <span class="n">experiment_design</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">factor</span><span class="p">)[</span><span class="s1">'Percent Reacted'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
 </pre></div>
 </div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h2 id="Interaction-Effects-Calculation">Interaction Effects Calculation<a class="anchor-link" href="#Interaction-Effects-Calculation">¶</a></h2><p>To calculate the interactions effects I generate all combonations of the factors (from 2 factors out to 5 factors). I then can similarly group these combonations of factors and evalute the mean of percent reacted to see the interaction effects.</p>
 </div>
 </div>
 </div>
@@ -7680,7 +7677,19 @@ a.anchor-link {
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h2 id="Creating-contrast-and-printing">Creating contrast and printing<a class="anchor-link" href="#Creating-contrast-and-printing">¶</a></h2><p>Similar to the JMP simulation, I want to evaluate the "contrast", which effectively is which direction does it drive the mean of percent reacted. This can be determined by determining the difference between the mean associated with the low and high level of either the main factor or combonation of factors.</p>
+<p>I then can sort the contrast from most impactful (positively impact percent reacted) to least impactful and output/print this text file to see the full rankings to determine which factors or combonations will be best to increase percent reacted.</p>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7722,10 +7731,27 @@ a.anchor-link {
 <span class="c1"># Save contrast and sort from highest to lowest</span>
 <span class="n">contrast_output</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">contrast_rows</span><span class="p">)</span>
 <span class="n">contrast_output</span> <span class="o">=</span> <span class="n">contrast_output</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s1">'Effect'</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-
-<span class="c1"># Print design and main effects</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [ ]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="c1">#------------------------------------------------------------------------</span>
+<span class="c1"># Print design, main effects contrast, and overall constrast rankings</span>
+<span class="c1">#------------------------------------------------------------------------</span>
+<span class="c1"># Print design</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">"Full Factorial Design and Percent Reacted:"</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">experiment_design</span><span class="p">)</span>
+
+<span class="c1"># Print main effects constrast</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">Main Effects:"</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">factor</span><span class="p">,</span> <span class="n">effects</span> <span class="ow">in</span> <span class="n">main_effects</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="si">{</span><span class="n">factor</span><span class="si">}</span><span class="s2">:"</span><span class="p">)</span>
@@ -7734,6 +7760,12 @@ a.anchor-link {
 <span class="c1"># Save contrast to text file for interactions</span>
 <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">'USERPROFILE'</span><span class="p">),</span><span class="s2">"repos"</span><span class="p">,</span><span class="s2">"mece-6397-doe"</span><span class="p">,</span><span class="s2">"project1"</span><span class="p">,</span><span class="s2">"output"</span><span class="p">,</span><span class="s2">"contrast_output.txt"</span><span class="p">),</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
     <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">contrast_output</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+
+<span class="c1"># Print overall rankings</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s1">'USERPROFILE'</span><span class="p">),</span><span class="s2">"repos"</span><span class="p">,</span><span class="s2">"mece-6397-doe"</span><span class="p">,</span><span class="s2">"project1"</span><span class="p">,</span><span class="s2">"output"</span><span class="p">,</span><span class="s2">"contrast_output.txt"</span><span class="p">))</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+    <span class="n">contents</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">contents</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -7846,8 +7878,160 @@ Concentration
 3    47.511706
 6    39.588214
 Name: Percent Reacted, dtype: float64
+                                                                      Factor/Interaction  Low Level Mean  High Level Mean     Effect
+Feed Rate x Catalyst x Stir Rate x Temperature x Concentration (Level (10, 1, 120, 140))       15.601864        61.185289  45.583425
+Feed Rate x Catalyst x Stir Rate x Temperature x Concentration (Level (15, 1, 120, 180))       18.182497        60.754485  42.571988
+                Catalyst x Stir Rate x Temperature x Concentration (Level (1, 120, 140))       10.705113        45.199877  34.494765
+                   Feed Rate x Catalyst x Stir Rate x Concentration (Level (15, 1, 120))       11.995429        44.984475  32.989046
+                     Feed Rate x Catalyst x Stir Rate x Temperature (Level (10, 1, 120))       38.393577        71.242860  32.849284
+                 Feed Rate x Catalyst x Temperature x Concentration (Level (15, 1, 180))       10.120473        40.360932  30.240459
+                     Feed Rate x Catalyst x Stir Rate x Temperature (Level (15, 2, 100))       44.494381        74.207215  29.712833
+                                     Catalyst x Stir Rate x Temperature (Level (1, 120))       27.952495        55.355676  27.403181
+                                      Feed Rate x Catalyst x Temperature (Level (10, 1))       36.166347        62.051055  25.884708
+Feed Rate x Catalyst x Stir Rate x Temperature x Concentration (Level (15, 1, 120, 140))        5.808361        29.214465  23.406104
+              Feed Rate x Stir Rate x Temperature x Concentration (Level (10, 120, 140))       15.600658        37.567338  21.966680
+                     Feed Rate x Catalyst x Stir Rate x Temperature (Level (15, 1, 120))       17.511413        39.468491  21.957078
+                                   Catalyst x Stir Rate x Concentration (Level (1, 120))       30.709247        52.598924  21.889678
+              Feed Rate x Stir Rate x Temperature x Concentration (Level (15, 120, 180))       18.261474        38.903449  20.641975
+                 Feed Rate x Catalyst x Temperature x Concentration (Level (10, 1, 140))       26.527938        45.804757  19.276819
+                     Feed Rate x Catalyst x Stir Rate x Temperature (Level (10, 1, 100))       33.939118        52.859250  18.920132
+                                                         Feed Rate x Catalyst (Level 15)       31.547441        49.506232  17.958790
+Feed Rate x Catalyst x Stir Rate x Temperature x Concentration (Level (15, 1, 100, 180))        2.058449        19.967378  17.908929
+                                   Feed Rate x Stir Rate x Temperature (Level (10, 120))       26.583998        42.091168  15.507170
+                                     Catalyst x Stir Rate x Temperature (Level (2, 100))       59.133959        74.434821  15.300862
+                                    Feed Rate x Catalyst x Concentration (Level (15, 1))       24.812175        38.282708  13.470532
+                                                      Feed Rate x Temperature (Level 10)       40.220163        52.926003  12.705841
+                                        Feed Rate x Catalyst x Stir Rate (Level (10, 1))       43.399184        54.818219  11.419035
+                   Feed Rate x Catalyst x Stir Rate x Concentration (Level (10, 1, 120))       49.423064        60.213373  10.790309
+                                   Feed Rate x Stir Rate x Temperature (Level (10, 100))       53.856327        63.760838   9.904511
+                Catalyst x Stir Rate x Temperature x Concentration (Level (1, 120, 180))       50.713380        59.997971   9.284591
+                                 Catalyst x Temperature x Concentration (Level (1, 140))       33.015908        41.004620   7.988712
+Feed Rate x Catalyst x Stir Rate x Temperature x Concentration (Level (10, 2, 100, 180))       70.807258        78.517596   7.710338
+                                                      Catalyst x Concentration (Level 1)       36.957543        43.698600   6.741057
+                                                        Catalyst x Temperature (Level 1)       37.010264        43.645879   6.635615
+                                                                                Catalyst       40.328071        46.771848   6.443777
+                                 Catalyst x Temperature x Concentration (Level (1, 180))       40.899178        46.392580   5.493402
+                              Stir Rate x Temperature x Concentration (Level (120, 140))       30.906823        35.246331   4.339508
+                                 Feed Rate x Stir Rate x Concentration (Level (15, 120))       32.237231        35.914387   3.677156
+                               Feed Rate x Temperature x Concentration (Level (15, 180))       33.893096        37.299430   3.406334
+                                                          Catalyst x Stir Rate (Level 1)       39.002057        41.654085   2.652028
+                                                     Stir Rate x Temperature (Level 120)       33.076577        35.336815   2.260238
+                                                   Stir Rate x Concentration (Level 120)       33.078552        35.334840   2.256288
+                Catalyst x Stir Rate x Temperature x Concentration (Level (1, 100, 180))       31.084975        32.787188   1.702213
+                                                                             Temperature       42.838787        44.261133   1.422346
+                     Feed Rate x Catalyst x Stir Rate x Temperature (Level (10, 2, 100))       73.773537        74.662427   0.888890
+                                 Feed Rate x Stir Rate x Concentration (Level (10, 120))       33.919873        34.755293   0.835421
+                                                     Stir Rate x Temperature (Level 100)       52.600996        53.185451   0.584455
+                              Stir Rate x Temperature x Concentration (Level (120, 180))       35.250281        35.423349   0.173068
+                                    Feed Rate x Catalyst x Concentration (Level (10, 1))       49.102910        49.114492   0.011582
+                                      Feed Rate x Catalyst x Temperature (Level (10, 2))       44.273978        43.800952  -0.473026
+Feed Rate x Catalyst x Stir Rate x Temperature x Concentration (Level (15, 2, 120, 180))       18.340451        17.052412  -1.288039
+                               Feed Rate x Temperature x Concentration (Level (10, 140))       40.931690        39.508636  -1.423054
+Feed Rate x Catalyst x Stir Rate x Temperature x Concentration (Level (10, 2, 120, 140))       15.599452        13.949386  -1.650066
+                     Feed Rate x Catalyst x Stir Rate x Temperature (Level (10, 2, 120))       14.774419        12.939476  -1.834943
+                 Feed Rate x Catalyst x Temperature x Concentration (Level (15, 1, 140))       39.503878        36.204483  -3.299394
+              Feed Rate x Stir Rate x Temperature x Concentration (Level (10, 100, 180))       65.459379        62.062297  -3.397082
+                                                        Catalyst x Temperature (Level 2)       48.667309        44.876387  -3.790922
+                                                 Temperature x Concentration (Level 180)       46.371165        42.151102  -4.220063
+                 Feed Rate x Catalyst x Temperature x Concentration (Level (10, 2, 180))       46.020584        41.581319  -4.439266
+                                                         Feed Rate x Catalyst (Level 10)       49.108701        44.037465  -5.071237
+                                                                               Feed Rate       46.573083        40.526837  -6.046246
+                   Feed Rate x Catalyst x Stir Rate x Concentration (Level (15, 1, 100))       37.628922        31.580940  -6.047982
+                                        Feed Rate x Catalyst x Stir Rate (Level (15, 1))       34.604931        28.489952  -6.114979
+                                                    Feed Rate x Concentration (Level 10)       49.890462        43.255704  -6.634757
+Feed Rate x Catalyst x Stir Rate x Temperature x Concentration (Level (10, 1, 100, 140))       37.454012        30.424224  -7.029788
+                                      Feed Rate x Catalyst x Temperature (Level (15, 2))       53.060640        45.951823  -7.108817
+                                                                           Concentration       47.511706        39.588214  -7.923492
+                                   Catalyst x Stir Rate x Concentration (Level (1, 100))       43.205839        34.798276  -8.407563
+                              Stir Rate x Temperature x Concentration (Level (100, 180))       57.492048        48.878854  -8.613194
+                                   Feed Rate x Stir Rate x Temperature (Level (15, 100))       51.345665        42.610064  -8.735600
+                Catalyst x Stir Rate x Temperature x Concentration (Level (2, 120, 180))       19.787181        10.848727  -8.938454
+                   Feed Rate x Catalyst x Stir Rate x Concentration (Level (10, 2, 120))       18.416682         9.297214  -9.119468
+                                                    Feed Rate x Concentration (Level 15)       45.132950        35.920723  -9.212227
+                                                      Feed Rate x Temperature (Level 15)       45.457410        35.596263  -9.861148
+                   Feed Rate x Catalyst x Stir Rate x Concentration (Level (10, 1, 100))       48.782757        38.015611 -10.767145
+                                   Feed Rate x Stir Rate x Temperature (Level (15, 120))       39.569156        28.582461 -10.986695
+                                                 Temperature x Concentration (Level 140)       48.652247        37.025326 -11.626921
+                               Feed Rate x Temperature x Concentration (Level (10, 180))       58.849234        47.002773 -11.846460
+                                      Feed Rate x Catalyst x Temperature (Level (15, 1))       37.854181        25.240702 -12.613478
+                                                        Feed Rate x Stir Rate (Level 15)       46.977864        34.075809 -12.902056
+                                    Feed Rate x Catalyst x Concentration (Level (10, 2))       50.678013        37.396917 -13.281096
+              Feed Rate x Stir Rate x Temperature x Concentration (Level (15, 120, 140))       46.212988        32.925325 -13.287663
+              Feed Rate x Stir Rate x Temperature x Concentration (Level (15, 100, 180))       49.524717        35.695411 -13.829306
+                                 Catalyst x Temperature x Concentration (Level (2, 180))       51.843151        37.909623 -13.933528
+                                 Feed Rate x Stir Rate x Concentration (Level (10, 100))       65.861050        51.756116 -14.104935
+                                     Catalyst x Stir Rate x Temperature (Level (1, 100))       46.068033        31.936082 -14.131951
+Feed Rate x Catalyst x Stir Rate x Temperature x Concentration (Level (10, 1, 100, 180))       60.111501        45.606998 -14.504503
+Feed Rate x Catalyst x Stir Rate x Temperature x Concentration (Level (10, 2, 120, 180))       21.233911         4.645041 -16.588870
+                                   Catalyst x Stir Rate x Concentration (Level (2, 120))       35.447857        18.070756 -17.377101
+                   Feed Rate x Catalyst x Stir Rate x Concentration (Level (10, 2, 100))       82.939344        65.496620 -17.442725
+                                                   Stir Rate x Concentration (Level 100)       61.944860        43.841587 -18.103272
+                Catalyst x Stir Rate x Temperature x Concentration (Level (1, 100, 140))       55.326703        36.809363 -18.517340
+                                                                               Stir Rate       52.893224        34.206696 -18.686528
+                Catalyst x Stir Rate x Temperature x Concentration (Level (2, 100, 180))       83.899121        64.970520 -18.928602
+                 Feed Rate x Catalyst x Temperature x Concentration (Level (10, 1, 180))       71.677883        52.424228 -19.253655
+                                        Feed Rate x Catalyst x Stir Rate (Level (15, 2))       59.350798        39.661666 -19.689132
+              Feed Rate x Stir Rate x Temperature x Concentration (Level (10, 120, 180))       52.239088        31.943249 -20.295838
+                               Feed Rate x Temperature x Concentration (Level (15, 140))       56.372805        34.542016 -21.830788
+                                 Feed Rate x Stir Rate x Concentration (Level (15, 100))       58.028669        35.927059 -22.101610
+                 Feed Rate x Catalyst x Temperature x Concentration (Level (10, 2, 140))       55.335441        33.212515 -22.122927
+                                                      Catalyst x Concentration (Level 2)       58.065869        35.477828 -22.588041
+                                     Catalyst x Stir Rate x Temperature (Level (2, 120))       38.200659        15.317954 -22.882705
+                 Feed Rate x Catalyst x Temperature x Concentration (Level (15, 2, 180))       57.665718        34.237928 -23.427790
+Feed Rate x Catalyst x Stir Rate x Temperature x Concentration (Level (10, 1, 120, 180))       83.244264        59.241457 -24.002807
+                                                        Feed Rate x Stir Rate (Level 10)       58.808583        34.337583 -24.471000
+              Feed Rate x Stir Rate x Temperature x Concentration (Level (10, 100, 140))       66.262721        41.449934 -24.812788
+                   Feed Rate x Catalyst x Stir Rate x Concentration (Level (15, 2, 120))       52.479033        26.844298 -25.634734
+                Catalyst x Stir Rate x Temperature x Concentration (Level (2, 120, 140))       51.108533        25.292785 -25.815748
+                              Stir Rate x Temperature x Concentration (Level (100, 140))       66.397671        38.804321 -27.593350
+                                   Catalyst x Stir Rate x Concentration (Level (2, 100))       80.683881        52.884899 -27.798981
+Feed Rate x Catalyst x Stir Rate x Temperature x Concentration (Level (15, 1, 100, 140))       73.199394        43.194502 -30.004892
+              Feed Rate x Stir Rate x Temperature x Concentration (Level (15, 100, 140))       66.532621        36.158708 -30.373913
+Feed Rate x Catalyst x Stir Rate x Temperature x Concentration (Level (15, 2, 100, 140))       59.865848        29.122914 -30.742934
+                                 Catalyst x Temperature x Concentration (Level (2, 140))       64.288586        33.046032 -31.242555
+                                    Feed Rate x Catalyst x Concentration (Level (15, 2))       65.453725        33.558739 -31.894986
+                Catalyst x Stir Rate x Temperature x Concentration (Level (2, 100, 140))       77.468640        40.799279 -36.669361
+                   Feed Rate x Catalyst x Stir Rate x Concentration (Level (15, 2, 100))       78.428417        40.273179 -38.155238
+                                                          Catalyst x Stir Rate (Level 2)       66.784390        26.759307 -40.025083
+                 Feed Rate x Catalyst x Temperature x Concentration (Level (15, 2, 140))       73.241731        32.879549 -40.362182
+Feed Rate x Catalyst x Stir Rate x Temperature x Concentration (Level (10, 2, 100, 140))       95.071431        52.475643 -42.595787
+                     Feed Rate x Catalyst x Stir Rate x Temperature (Level (15, 2, 120))       61.626899        17.696432 -43.930468
+Feed Rate x Catalyst x Stir Rate x Temperature x Concentration (Level (15, 2, 100, 180))       96.990985        51.423444 -45.567541
+                     Feed Rate x Catalyst x Stir Rate x Temperature (Level (15, 1, 100))       58.196948        11.012914 -47.184034
+Feed Rate x Catalyst x Stir Rate x Temperature x Concentration (Level (15, 2, 120, 140))       86.617615        36.636184 -49.981430
+                                        Feed Rate x Catalyst x Stir Rate (Level (10, 2))       74.217982        13.856948 -60.361034
 </pre>
 </div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h2 id="Conclusion">Conclusion<a class="anchor-link" href="#Conclusion">¶</a></h2><p>With our randomly generated responses (percent reacted) and with our random seed (42), we find that increasing the Catalyst level is the most impactful, single factor that can improve percent reacted with a 6% contribution. An overall grading of factors is as follows in the following form (Factor, Percented Reacted Change)</p>
+<ol>
+<li>Catalyst (+6%)</li>
+<li>Temperature (+1.4%)</li>
+<li>Feed Rate (-6%)</li>
+<li>Concentration (-7.9%)</li>
+<li>Stir Rate (-18.7%)</li>
+</ol>
+<p>Notice that increasing the level of Feed Rate, Concentration, and Stir Rate negatively impacts percent reacted if we are examining these factors indvidually. However, the individual examinination in itself doesn't fully capture coupled impacts, therefore investigating combonations of factors percented reacted change is more valuable. I generated 121 combonations of different factors and ultimately found some combonations of the 5 factors yield the best mean change in percent reacted. For example the top 2 combonations include:</p>
+<ol>
+<li>Feed Rate x Catalyst x Stir Rate x Temperature x Concentration (Level (10, 1, 120, 140)) which has a Percent Reacted Change of +45.6%</li>
+<li>Feed Rate x Catalyst x Stir Rate x Temperature x Concentration (Level (15, 1, 120, 180)) which has a Percented Reacted Change of +42.6%</li>
+</ol>
+<p>In esssence, if we have those factors with their accompanying factors and then increase the concentration, this will dramatically and postiviely impact our overall chemcial reaction percent reacted. Following these combos of 5 factors, the next most impactful combos are 4 factors that follow a similar trend. Commenting on some pair combonations, the top two paired combonations positively impacting percent reacted are:</p>
+<ol>
+<li>Feed Rate x Catalyst (Level 15) which has a Percent Reacted Change of +18%</li>
+<li>Feed Rate x Temperature (Level 10) which has a Percent Reacted Change of +12.7%</li>
+<li>Catalyst x Concentration (Level 1) which has a Percent Reacted Change of +6.7%</li>
+</ol>
+<p>As evidenced, each of these factors has unique, coupled impacts when combined and it's important to understand the nuance associated with each of these. If I was an engineer on this experiment, I would keep in the back of my mind the overall net increase that increasing the catalyst level can bring, however, I would specifically pay attention to the coupled impacts with multiple factors and atttempt to understand the underlying phyiscal reasoning to better increase the overall net, percent reacted for my chemical reactions.</p>
 </div>
 </div>
 </div>
