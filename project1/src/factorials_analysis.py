@@ -10,7 +10,6 @@ import os
 import pandas as pd
 import numpy as np
 from itertools import combinations
-import matplotlib.pyplot as plt 
 
 # Local imports
 # None
@@ -107,9 +106,14 @@ for interaction_term, interaction_data in interaction_effects.items():
 contrast_output = pd.DataFrame(contrast_rows)
 contrast_output = contrast_output.sort_values(by='Effect', ascending=False)
 
-# Print design and main effects
+#------------------------------------------------------------------------
+# Print design, main effects contrast, and overall constrast rankings
+#------------------------------------------------------------------------
+# Print design
 print("Full Factorial Design and Percent Reacted:")
 print(experiment_design)
+
+# Print main effects constrast
 print("\nMain Effects:")
 for factor, effects in main_effects.items():
     print(f"\n{factor}:")
@@ -118,3 +122,9 @@ for factor, effects in main_effects.items():
 # Save contrast to text file for interactions
 with open(os.path.join(os.getenv('USERPROFILE'),"repos","mece-6397-doe","project1","output","contrast_output.txt"), "w") as file:
     file.write(contrast_output.to_string(index=False))
+
+# Print overall rankings
+with open(os.path.join(os.getenv('USERPROFILE'),"repos","mece-6397-doe","project1","output","contrast_output.txt")) as file:
+    contents = file.read()
+
+print(contents)
