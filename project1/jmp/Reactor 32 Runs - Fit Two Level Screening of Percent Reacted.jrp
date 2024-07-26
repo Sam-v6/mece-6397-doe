@@ -1,0 +1,284 @@
+﻿Local Here(
+	(table1 = New Table( "Reactor 32 Runs",
+		Add Rows( 32 ),
+		New Table Variable(
+			["en" => "Design",
+			"ja" => "計画",
+			"x-id" => "S_Design_Experiment_Reactor_32_Run_Design_Var",
+			"zh-CN" => "设计"],
+			["en" => "2x2x2x2x2 Factorial",
+			"ja" => "2x2x2x2x2 完全実施要因計画",
+			"x-id" => "S_Design_Experiment_Reactor_32_Run_2x2x2x2x2_Factorial_Txt",
+			"zh-CN" => "2x2x2x2x2 析因"]
+		),
+		New Table Variable(
+			["en" => "Reference",
+			"ja" => "参照",
+			"x-id" => "S_Design_Experiment_Reactor_32_Run_Reference_Var",
+			"zh-CN" => "参考"],
+			["en" =>
+			"Adapted from Meyer, R.D., Steinberg, D.M., and Box, G.(1996), Follow-up Designs to Resolve Confounding in Multifactor Experiments, Technometrics, 38:4, p307. 
+
+
+
+Example is originally found in Box, GEP, Hunter, WG, and Hunter, WS (1976), \!"Statistics for Experimenters\!".  Also, in the second edition (2005), p.260.",
+			"ja" =>
+			"Meyer, R.D., Steinberg, D.M., and Box, G.(1996), Follow-up Designs to Resolve Confounding in Multifactor Experiments, Technometrics, 38:4, p.307のデータに手を加えたもの。
+
+
+
+例の出典は、Box, GEP, Hunter, WG, and Hunter, WS (1976), \!"Statistics for Experimenters\!"、および第2版(2005), p.260。",
+			"x-id" =>
+			"S_Design_Experiment_Reactor_32_Run_Adapted_from_Meyer_R_D_Steinberg_Txt",
+			"zh-CN" =>
+			"改编自 Meyer, R.D., Steinberg, D.M., and Box, G.(1996), Follow-up Designs to Resolve Confounding in Multifactor Experiments, Technometrics, 38:4, p307。
+
+
+
+示例最初来源于 Box, GEP, Hunter, WG, and Hunter, WS (1976), \!"Statistics for Experimenters\!"。此外出现在第二版 (2005), p.260。"
+			]
+		),
+		New Table Variable(
+			["en" => "Note",
+			"ja" => "ノート",
+			"x-id" => "S_Design_Experiment_Reactor_32_Run_Note_Var",
+			"zh-CN" => "注释"],
+			["en" =>
+			"Data from a reactor experiment. Percent Reacted is the response.",
+			"ja" => "化学実験のデータ。応答変数は「反応率(%)」。",
+			"x-id" =>
+			"S_Design_Experiment_Reactor_32_Run_Data_from_a_reactor_experiment_P_Txt",
+			"zh-CN" => "数据来自于反应器实验。“反应百分比”是响应。"]
+		),
+		New Script(
+			["en" => "Model",
+			"ja" => "モデル",
+			"x-id" => "S_Design_Experiment_Reactor_32_Run_Model_Scp",
+			"zh-CN" => "模型"],
+			Fit Model(
+				Effects(
+					:Feed Rate, :Catalyst, :Stir Rate, :Temperature, :Concentration,
+					:Feed Rate * :Catalyst, :Feed Rate * :Stir Rate,
+					:Catalyst * :Stir Rate, :Feed Rate * :Temperature,
+					:Catalyst * :Temperature, :Stir Rate * :Temperature,
+					:Feed Rate * :Concentration, :Catalyst * :Concentration,
+					:Stir Rate * :Concentration, :Temperature * :Concentration
+				),
+				Y( :Percent Reacted ),
+				PERSONALITY( "Standard Least Squares" )
+			)
+		),
+		New Script(
+			["en" => "Evaluate Design",
+			"ja" => "計画の評価",
+			"x-id" => "S_Design_Experiment_Reactor_32_Run_Evaluate_Design_Scp",
+			"zh-CN" => "评估设计"],
+			DOE(
+				Evaluate Design,
+				X( :Feed Rate, :Catalyst, :Stir Rate, :Temperature, :Concentration )
+			)
+		),
+		New Script(
+			["en" => "DOE Dialog",
+			"ja" => "DOEダイアログ",
+			"x-id" => "S_Design_Experiment_Reactor_32_Run_DOE_Dialog_Scp",
+			"zh-CN" => "实验设计对话框"],
+			DOE(
+				Full Factorial Design,
+				{Add Response( Maximize, "Percent Reacted", 90, 100, 1 ),
+				Add Factor( Continuous, {10, 15}, "Feed Rate", 0 ),
+				Add Factor( Continuous, {1, 2}, "Catalyst", 0 ),
+				Add Factor( Continuous, {100, 120}, "Stir Rate", 0 ),
+				Add Factor( Continuous, {140, 180}, "Temperature", 0 ),
+				Add Factor( Continuous, {3, 6}, "Concentration", 0 ),
+				Set Random Seed( 12345 ), Make Design, Make Table}
+			)
+		),
+		New Script(
+			["en" => "Screening",
+			"ja" => "スクリーニング",
+			"x-id" => "S_Design_Experiment_Reactor_32_Run_Screening_Scp",
+			"zh-CN" => "筛选"],
+			Fit Two Level Screening(
+				Y( :Percent Reacted ),
+				X( :Feed Rate, :Catalyst, :Stir Rate, :Temperature, :Concentration )
+			)
+		),
+		New Script(
+			["en" => "Reduced Model",
+			"ja" => "縮小モデル",
+			"x-id" => "S_Design_Experiment_Reactor_32_Run_Reduced_Model_Scp",
+			"zh-CN" => "简化模型"],
+			Fit Model(
+				Y( :Percent Reacted ),
+				Effects(
+					:Catalyst, :Temperature, :Concentration,
+					:Catalyst * :Temperature, :Temperature * :Concentration
+				),
+				Keep dialog open( 1 ),
+				Personality( "Standard Least Squares" )
+			)
+		),
+		New Column(
+			["en" => "Pattern",
+			"ja" => "パターン",
+			"x-id" => "S_Design_Experiment_Reactor_32_Run_Pattern_Col",
+			"zh-CN" => "模式"],
+			Character,
+			"Nominal",
+			Set Values(
+				{"++−+−", "+++++", "−++−−", "−+−−+", "−++++", "−+−−−", "++−−+",
+				"−−+−+", "−−−−−", "++−++", "+−++−", "−+++−", "+−−+−", "−−++−",
+				"−++−+", "+++−+", "+−−++", "++++−", "−−−+−", "+−−−+", "−+−++",
+				"−−−++", "++−−−", "+−+−+", "−−+++", "+++−−", "+−+−−", "−−+−−",
+				"−−−−+", "−+−+−", "+−−−−", "+−+++"}
+			),
+			Set Display Width( 0 )
+		),
+		New Column(
+			["en" => "Feed Rate",
+			"ja" => "送り速度",
+			"x-id" => "S_Design_Experiment_Reactor_32_Run_Feed_Rate_Col",
+			"zh-CN" => "进料速度"],
+			Numeric,
+			"Continuous",
+			Format( "Best", 12 ),
+			Set Property( "Coding", {10, 15} ),
+			Set Property( "Design Role", DesignRole( Continuous ) ),
+			Set Property( "Factor Changes", Easy ),
+			Set Property(
+				"Notes",
+				["en" => "In liters per minute",
+				"ja" => "1分あたりのリットル数",
+				"x-id" =>
+				"S_Design_Experiment_Reactor_32_Run_In_liters_per_minute_Not",
+				"zh-CN" => "以每分钟升数为单位"]
+			),
+			Set Selected,
+			Set Values(
+				[15, 15, 10, 10, 10, 10, 15, 10, 10, 15, 15, 10, 15, 10, 10, 15, 15,
+				15, 10, 15, 10, 10, 15, 15, 10, 15, 15, 10, 10, 10, 15, 15]
+			),
+			Set Display Width( 0 )
+		),
+		New Column(
+			["en" => "Catalyst",
+			"ja" => "触媒",
+			"x-id" => "S_Design_Experiment_Reactor_32_Run_Catalyst_Col",
+			"zh-CN" => "催化剂"],
+			Numeric,
+			"Continuous",
+			Format( "Best", 12 ),
+			Set Property( "Coding", {1, 2} ),
+			Set Property( "Design Role", DesignRole( Continuous ) ),
+			Set Property( "Factor Changes", Easy ),
+			Set Property(
+				"Notes",
+				["en" => "As a percent",
+				"ja" => "パーセンテージ",
+				"x-id" => "S_Design_Experiment_Reactor_32_Run_As_a_percent_Not",
+				"zh-CN" => "采用百分比形式"]
+			),
+			Set Values(
+				[2, 2, 2, 2, 2, 2, 2, 1, 1, 2, 1, 2, 1, 1, 2, 2, 1, 2, 1, 1, 2, 1, 2,
+				1, 1, 2, 1, 1, 1, 2, 1, 1]
+			),
+			Set Display Width( 0 )
+		),
+		New Column(
+			["en" => "Stir Rate",
+			"ja" => "攪拌速度",
+			"x-id" => "S_Design_Experiment_Reactor_32_Run_Stir_Rate_Col",
+			"zh-CN" => "搅拌速度"],
+			Numeric,
+			"Continuous",
+			Format( "Best", 12 ),
+			Set Property( "Coding", {100, 120} ),
+			Set Property( "Design Role", DesignRole( Continuous ) ),
+			Set Property( "Factor Changes", Easy ),
+			Set Property(
+				"Notes",
+				["en" => "RPM",
+				"ja" => "RPM",
+				"x-id" => "S_Design_Experiment_Reactor_32_Run_RPM_Not",
+				"zh-CN" => "RPM"]
+			),
+			Set Values(
+				[100, 120, 120, 100, 120, 100, 100, 120, 100, 100, 120, 120, 100,
+				120, 120, 120, 100, 120, 100, 100, 100, 100, 100, 120, 120, 120, 120,
+				120, 100, 100, 100, 120]
+			),
+			Set Display Width( 0 )
+		),
+		New Column(
+			["en" => "Temperature",
+			"ja" => "温度",
+			"x-id" => "S_Design_Experiment_Reactor_32_Run_Temperature_Col",
+			"zh-CN" => "温度"],
+			Numeric,
+			"Continuous",
+			Format( "Best", 12 ),
+			Set Property( "Coding", {140, 180} ),
+			Set Property( "Design Role", DesignRole( Continuous ) ),
+			Set Property( "Factor Changes", Easy ),
+			Set Property(
+				"Notes",
+				["en" => "Degrees Celsius",
+				"ja" => "温度(摂氏)",
+				"x-id" => "S_Design_Experiment_Reactor_32_Run_Degrees_Celsius_Not",
+				"zh-CN" => "摄氏度"]
+			),
+			Set Values(
+				[180, 180, 140, 140, 180, 140, 140, 140, 140, 180, 180, 180, 180,
+				180, 140, 140, 180, 180, 180, 140, 180, 180, 140, 140, 180, 140, 140,
+				140, 140, 180, 140, 180]
+			),
+			Set Display Width( 0 )
+		),
+		New Column(
+			["en" => "Concentration",
+			"ja" => "濃度",
+			"x-id" => "S_Design_Experiment_Reactor_32_Run_Concentration_Col",
+			"zh-CN" => "浓度"],
+			Numeric,
+			"Continuous",
+			Format( "Best", 12 ),
+			Set Property( "Coding", {3, 6} ),
+			Set Property( "Design Role", DesignRole( Continuous ) ),
+			Set Property( "Factor Changes", Easy ),
+			Set Values(
+				[3, 6, 3, 6, 6, 3, 6, 6, 3, 6, 3, 3, 3, 3, 6, 6, 6, 3, 3, 6, 6, 6, 3,
+				6, 6, 3, 3, 3, 6, 3, 3, 6]
+			),
+			Set Display Width( 0 )
+		),
+		New Column(
+			["en" => "Percent Reacted",
+			"ja" => "反応率(%)",
+			"x-id" => "S_Design_Experiment_Reactor_32_Run_Percent_Reacted_Col",
+			"zh-CN" => "反应百分比"],
+			Numeric,
+			"Continuous",
+			Format( "Best", 8 ),
+			Set Property(
+				"Response Limits",
+				{Goal( Maximize ), Lower( 90 ), Upper( 100 ), Importance( 1 ),
+				Show Limits( 0 )}
+			),
+			Set Values(
+				[93, 82, 54, 70, 81, 63, 65, 59, 61, 77, 60, 95, 61, 66, 67, 65, 45,
+				98, 69, 63, 78, 44, 61, 55, 49, 61, 56, 53, 56, 94, 53, 42]
+			),
+			Set Display Width( 0 )
+		),
+		Set Row States(
+			[0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0, 0, 0, 0, 0]
+		),
+		Set Label Columns( :Pattern )
+	)) << Run Formulas;
+	table1 << Fit Two Level Screening(
+		Y( :Percent Reacted ),
+		X( :Feed Rate, :Catalyst, :Stir Rate, :Temperature, :Concentration )
+	);
+)
