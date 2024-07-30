@@ -128,3 +128,4 @@ with open(os.path.join(os.getenv('USERPROFILE'),"repos","mece-6397-doe","project
     contents = file.read()
 
 print(contents)
+

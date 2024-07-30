@@ -1,0 +1,159 @@
+﻿Local Here(
+	(table1 = New Table( "custom_design",
+		Add Rows( 24 ),
+		New Table Variable( "Design", "Augmented Design" ),
+		New Script(
+			"Model",
+			Fit Model( Effects( :Speed, :Geometry, :Angle, :Block ), Y( :Life ) )
+		),
+		New Script(
+			"Evaluate Design",
+			DOE( Evaluate Design, X( :Speed, :Geometry, :Angle, :Block ) )
+		),
+		New Script(
+			"Original Data Table",
+			New Table( "Untitled",
+				Add Rows( 8 ),
+				New Column( "Cutting Speed",
+					Character,
+					"Nominal",
+					Set Values( {"0", "1", "0", "1", "0", "1", "0", "1"} )
+				),
+				New Column( "Tool Geometry",
+					Numeric,
+					"Continuous",
+					Format( "Best", 12 ),
+					Set Values( [0, 0, 1, 1, 0, 0, 1, 1] )
+				),
+				New Column( "Treatment Combonation",
+					Numeric,
+					"Continuous",
+					Format( "Best", 12 ),
+					Set Values( [0, 0, 0, 0, 1, 1, 1, 1] )
+				),
+				New Column( "Life",
+					Numeric,
+					"Continuous",
+					Format( "Best", 12 ),
+					Set Values( [22, 32, 35, 55, 44, 40, 60, 39] )
+				)
+			)
+		),
+		New Script(
+			"DOE Dialog",
+			dt = Current Data Table();
+			dt2 = dt << run script( "Original Data Table" );
+			Current Data Table( dt2 );
+			DOE(
+				Augment Design,
+				X( :Speed, :Geometry, :Angle ),
+				Y( :Life ),
+				{Group new runs into separate block, Augment Method( Replicate, 3 ),
+				Save X Matrix( 0 ), Simulate Responses( 0 ), Make Table}
+			);
+		),
+		New Column( "Speed",
+			Numeric,
+			"Continuous",
+			Format( "Best", 12 ),
+			Set Property( "Value Order", {Custom Order( {"0", "1"} )} ),
+			Set Property( "Design Role", DesignRole( Categorical ) ),
+			Set Property( "Factor Changes", Easy ),
+			Set Values(
+				[0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0,
+				1]
+			),
+			Set Display Width( 80 )
+		),
+		New Column( "Geometry",
+			Numeric,
+			"Continuous",
+			Format( "Best", 12 ),
+			Set Property( "Coding", {0, 1} ),
+			Set Property( "Design Role", DesignRole( Continuous ) ),
+			Set Property( "Factor Changes", Easy ),
+			Set Selected,
+			Set Values(
+				[0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1,
+				1]
+			),
+			Set Display Width( 84 )
+		),
+		New Column( "Angle",
+			Numeric,
+			"Continuous",
+			Format( "Best", 12 ),
+			Set Property( "Coding", {0, 1} ),
+			Set Property( "Design Role", DesignRole( Continuous ) ),
+			Set Property( "Factor Changes", Easy ),
+			Set Values(
+				[0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1,
+				1]
+			),
+			Set Display Width( 95 )
+		),
+		New Column( "Block",
+			Character( 1 ),
+			"Nominal",
+			Set Property( "Value Order", {Custom Order( {"1", "2"} )} ),
+			Set Property( "RunsPerBlock", 8 ),
+			Set Property( "Design Role", DesignRole( Blocking ) ),
+			Set Property( "Factor Changes", Easy ),
+			Set Values(
+				{"1", "1", "1", "1", "1", "1", "1", "1", "2", "2", "2", "2", "2",
+				"2", "2", "2", "2", "2", "2", "2", "2", "2", "2", "2"}
+			),
+			Set Display Width( 38 )
+		),
+		New Column( "Life",
+			Numeric,
+			"Continuous",
+			Format( "Best", 12 ),
+			Set Property(
+				"Response Limits",
+				{Goal( Maximize ), Lower( . ), Upper( . ), Importance( . )}
+			),
+			Set Values(
+				[22, 32, 35, 55, 44, 40, 60, 39, 31, 43, 34, 47, 45, 37, 50, 41, 25,
+				29, 50, 46, 38, 36, 54, 47]
+			),
+			Set Display Width( 38 )
+		),
+		Set Row States(
+			[0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+		)
+	)) << Run Formulas;
+	table1 << Fit Model(
+		Y( :Life ),
+		Effects(
+			:Speed, :Geometry, :Angle, :Block, :Speed * :Geometry, :Speed * :Angle,
+			:Geometry * :Angle
+		),
+		Personality( "Standard Least Squares" ),
+		Emphasis( "Effect Screening" ),
+		Run(
+			:Life << {Summary of Fit( 1 ), Analysis of Variance( 1 ),
+			Parameter Estimates( 1 ), Sorted Estimates( 0 ),
+			Plot Actual by Predicted( 1 ), Plot Regression( 0 ),
+			Plot Residual by Predicted( 1 ), Plot Studentized Residuals( 1 ),
+			Plot Effect Leverage( 0 ), Plot Residual by Normal Quantiles( 0 ),
+			Box Cox Y Transformation( 0 ), Profiler(
+				1,
+				Confidence Intervals( 1 ),
+				Desirability Functions( 1 ),
+				Term Value(
+					:Speed( 0.5, Lock( 0 ), Show( 1 ) ),
+					:Geometry( 0.5, Lock( 0 ), Show( 1 ) ),
+					:Angle( 0.5, Lock( 0 ), Show( 1 ) )
+				)
+			), Normal Plot( 1 ), Pareto Plot( 1 ), Interaction Plots( 1 )}
+		),
+		SendToReport(
+			Dispatch( {"Effect Summary"}, "", TableBox, {Sort By Column( 2, 0 )} ),
+			Dispatch( {}, "Parameter Estimates", OutlineBox, {Close( 0 )} ),
+			Dispatch( {}, "Effect Tests", OutlineBox, {Close( 0 )} ),
+			Dispatch( {"Effect Tests"}, "", TableBox, {Sort By Column( 1, 1 )} ),
+			Dispatch( {}, "Effect Details", OutlineBox, {Close( 0 )} )
+		)
+	);
+)
