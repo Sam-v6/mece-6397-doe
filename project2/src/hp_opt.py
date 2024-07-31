@@ -128,17 +128,12 @@ t.stop()  # A few seconds later
 # Convert results to a DataFrame for analysis
 results_df = pd.DataFrame(results)
 
-# Display the results
-print(results_df)
-
 #--------------------------------------------------------------------
 # Assess the impact of main factors
 #--------------------------------------------------------------------
 main_effects = {}
 for factor in factors.keys():
     main_effects[factor] = results_df.groupby(factor)['accuracy'].mean()
-    print(main_effects[factor])
-
 
 #------------------------------------------------------------------------
 # Assess the impact of interactions
@@ -191,7 +186,7 @@ contrast_output = contrast_output.sort_values(by='Effect', ascending=False)
 #------------------------------------------------------------------------
 # Print design
 print("Full Factorial Design and Percent Reacted:")
-#print(experiment_design)
+print(results_df)
 
 # Print main effects constrast
 print("\nMain Effects:")
@@ -206,6 +201,5 @@ with open(os.path.join(os.getenv('USERPROFILE'),"repos","mece-6397-doe","project
 # Print overall rankings
 with open(os.path.join(os.getenv('USERPROFILE'),"repos","mece-6397-doe","project2","output","contrast_output.txt")) as file:
     contents = file.read()
-
 print(contents)
 
