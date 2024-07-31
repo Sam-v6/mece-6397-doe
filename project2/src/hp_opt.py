@@ -90,7 +90,6 @@ def generate_full_factorial_design(factors):
 
 # Generate the design matrix
 design_matrix = generate_full_factorial_design(factors)
-# print(design_matrix)
 
 #--------------------------------------------------------------------
 # Run experiment
@@ -147,7 +146,7 @@ for r in range(2, len(factor_names) + 1):
         interaction_effects[interaction_term] = results_df.groupby(list(combo))['accuracy'].mean().unstack()
 
 #------------------------------------------------------------------------
-# Generate Contrast Output
+# Generate contrast Output
 #------------------------------------------------------------------------
 contrast_output = pd.DataFrame(columns=['Factor/Interaction', 'Low Level Mean', 'High Level Mean', 'Effect'])
 contrast_rows = []

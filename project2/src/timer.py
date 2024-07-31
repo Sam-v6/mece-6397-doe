@@ -1,9 +1,24 @@
-# timer.py
+"""
+Purpose: Project 2 - Demonstrate timer functionality with sample code
+Author: Syam Evani (via reference from MECE 6397 instructors)
+"""
 
+# Standard imports
 import time
 
-# Illustration of a Class Function for Error Exception
+# Additional imports
+import pandas as pd
+from sklearn.datasets import load_iris
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
 
+# Local imports
+# None
+
+#--------------------------------------------------------------------
+# Timing examples
+#--------------------------------------------------------------------
 class TimerError(Exception):
     """A custom exception used to report errors in use of Timer class"""
 
@@ -30,10 +45,9 @@ class Timer:
         print(f"Elapsed time: {elapsed_time:0.4f} seconds")
         print(f"Elapsed time: {elapsed_time_min:0.4f} minutes")
 
-
-
-import pandas as pd
-
+#--------------------------------------------------------------------
+# Create design
+#--------------------------------------------------------------------
 # Define the factors and levels
 factors = {
     'n_estimators': ['-', '+'],
@@ -51,13 +65,9 @@ def full_factorial_design(factors):
 design_matrix = full_factorial_design(factors)
 print(design_matrix)
 
-from sklearn.datasets import load_iris
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
-import pandas as pd
-import numpy as np
-
+#--------------------------------------------------------------------
+# Run experiment
+#--------------------------------------------------------------------
 # Import the time library
 t = Timer()
 t.start()
