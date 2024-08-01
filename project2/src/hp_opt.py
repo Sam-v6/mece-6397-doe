@@ -64,6 +64,7 @@ class Timer:
 #     'max_samples': [0.5, 0.8]
 # }
 
+# New factors (yields accuracy 0.3 to 1.0)
 factors = {
     'n_estimators': [5, 50],
     'max_depth': [1, 10],
@@ -184,7 +185,7 @@ contrast_output = contrast_output.sort_values(by='Effect', ascending=False)
 # Print design, main effects contrast, and overall constrast rankings
 #------------------------------------------------------------------------
 # Print design
-print("Full Factorial Design and Percent Reacted:")
+print("Accuracy Report:")
 print(results_df)
 
 # Print main effects constrast
