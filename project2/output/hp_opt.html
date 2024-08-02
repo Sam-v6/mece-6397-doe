@@ -7520,8 +7520,10 @@ a.anchor-link {
 07/31/2025 <br/></p>
 <h2 id="Introduction"><span style="color: blue;">Introduction</span><a class="anchor-link" href="#Introduction">¶</a></h2><h3 id="Table-of-Contents">Table of Contents<a class="anchor-link" href="#Table-of-Contents">¶</a></h3><ol>
 <li><a href="#part-1-timer-illustration">Part 1: Timer Illustration</a></li>
-<li><a href="#Data-Analysis">Data Analysis</a></li>
-<li><a href="#Conclusion">Conclusion</a></li>
+<li><a href="#part-2-doe-construction">Part 2: Constructing DOE</a></li>
+<li><a href="#part-3-output-modification">Part 3: Full Factorial Output Modification</a></li>
+<li><a href="#part-4-updating-model">Part 4: Updating Random Forest Model</a></li>
+<li><a href="#part-5-analysis-recommendations">Part 5: Analysis &amp; Recommendations</a></li>
 </ol>
 <p>My code for this project is included in three ways:</p>
 <ul>
@@ -7709,6 +7711,7 @@ Elapsed time: 0.0044 minutes
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<p><a id="part-2-doe-construction"></a></p>
 <h2 id="Part-2:-Creating-five-factor-and-two-level-DOE-implementation"><span style="color: blue;">Part 2: Creating five factor and two level DOE implementation</span><a class="anchor-link" href="#Part-2:-Creating-five-factor-and-two-level-DOE-implementation">¶</a></h2><p>I've adjusted the provided code to include the 5 factors identified as well as tie them to the provided lower and higher levels. Note, some additional data was also provided but for now I'll use the original factor data to generate the combinations. In total we see 32 combinations between our 5 factors, each with 2 levels.</p>
 </div>
 </div>
@@ -8088,6 +8091,7 @@ A full table of our design can be found below:
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<p><a id="part-3-output-modification"></a></p>
 <h2 id="Part-3:-Modifying-full-factorial-design-to-output-a-dictionary-"><span style="color: blue;">Part 3: Modifying full factorial design to output a dictionary </span><a class="anchor-link" href="#Part-3:-Modifying-full-factorial-design-to-output-a-dictionary-">¶</a></h2><p>I've modified the original <code>full_factorial_design</code> function and converted it to <code>generate_full_factorial_design</code>. The main changes are I now iterate through the items in design (a list itself) and create a small dictionary that has the keys and value pairs. I continue to do this until I have all combinations saved and return a list. The output is printed to give an illustration of what this looks like. <br/></p>
 <p>As an example use of our return (<code>design_matrix</code>), if we wanted the number of estimators for the first combination we could access this like <code>design_matrix[0]["n_estimators"]</code></p>
 </div>
@@ -8196,6 +8200,7 @@ A full table of our design can be found below:
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<p><a id="part-4-updating-model"></a></p>
 <h2 id="Part-4:-Updating-the-Random-Forest-Optimization-Model-"><span style="color: blue;">Part 4: Updating the Random Forest Optimization Model </span><a class="anchor-link" href="#Part-4:-Updating-the-Random-Forest-Optimization-Model-">¶</a></h2><p>With some simple edits of adding our additional factors we can use the random forest optimization model to assess the different factors.</p>
 </div>
 </div>
@@ -8362,6 +8367,7 @@ A picture of our results are provided below. Notice that with default values the
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<p><a id="part-5-analysis-recommendations"></a></p>
 <h2 id="Part-5:-Analysis-&amp;-Recommendations-"><span style="color: blue;">Part 5: Analysis &amp; Recommendations </span><a class="anchor-link" href="#Part-5:-Analysis-&amp;-Recommendations-">¶</a></h2><p>To asssess the impact of different factors on the accuracy of combinations I did a few things:</p>
 <ul>
 <li>I adjusted the factors to those that were recommended in a follow up annoucnement, these new low and high values for each factor create more variance in accuracy to better see interactions and imapcts of effects</li>
