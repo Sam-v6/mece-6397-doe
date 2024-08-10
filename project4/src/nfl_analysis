@@ -1,0 +1,117 @@
+"""
+Purpose: Project 4 - ML analysis on nfl betting info to determine wins
+Author: Syam Evani
+"""
+
+# Standard imports
+import os
+import time
+
+# Additional imports
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score, classification_report
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import StandardScaler
+from sklearn.feature_selection import SelectKBest, f_classif
+from scipy.stats import f
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
+from scipy.stats import t, ttest_ind
+
+# Local imports
+# None
+
+#----------------------------------------------------
+# Load and categorize data
+#----------------------------------------------------
+data = pd.read_csv(os.path.join(os.getenv('USERPROFILE'),'repos','mece-6397-doe','project4','data','games.csv'))
+
+# There's alot of superflous data we don't want to draw predictions from, let's drop these
+drop_list = ["week", "gameday", "gametime", "old_game_id", "gsis", "nfl_detail_id", 
+             "pfr", "pff", "espn", "ftn", "away_qb_id", "home_qb_id", "away_qb_name", 
+             "home_qb_name" , "away_coach", "home_coach", "referee", "stadium_id", "stadium",
+             "overtime", "season", "away_team", "home_team", "roof"]
+data = data.drop(columns=drop_list)
+
+# This dataset includes games that haven't been played yet, filter out 2024 games as well as any neutral site games
+data = data[~data['game_id'].str.contains("2024", na=False)]
+data = data[~data['location'].str.contains("Neutral", na=False)]
+data = data.drop(columns=['game_id'])
+data = data.drop(columns=['location'])
+
+# Feature selection
+selected_features = ['game_type', 'weekday', 'away_rest', 
+                     'home_rest', 'away_moneyline','home_moneyline',
+                     'spread_line', 'away_spread_odds', "home_spread_odds", 
+                     "div_game", "surface", "temp", "wind"]
+
+# Drop rows with missing data in any of the selected features columns
+data = data.dropna(subset=selected_features)
+
+# Check on our data and see what factors we are considering now
+print(data.columns)
+
+# Categorize data
+cleanup_nums = {
+                "game_type": {"REG": 1, "WC": 2, "DIV":3, "CON":4, "SB":5},
+                "weekday": {"Monday": 1, "Tuesday":2, "Wednesday":3, "Thursday":4, "Friday":5, "Saturday":6, "Sunday":7},
+                "surface": {"sportturf":0, 'astroplay':0, 'grass':1, 'fieldturf':0, 'dessograss':1, 'a_turf':0, 'astroturf':0, 'grass ':1}
+                }
+data = data.replace(cleanup_nums)
+
+# Create a new column based on the 'result' column
+data['home_team_win'] = np.where(data['result'] > 0, 1, 0)
+
+# Print data
+print(data.head())
+print(data.tail())
+
+#----------------------------------------------------
+# Slice data into training and testing sets
+#----------------------------------------------------
+# Split training data
+X = data[selected_features]
+y = data['home_team_win']
+
+# Splitting data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+#----------------------------------------------------
+# T-test
+#----------------------------------------------------
+for feature in selected_features:
+    win = data[data['home_team_win'] == 1][feature]
+    loss = data[data['home_team_win'] == 0][feature]
+    
+    # Calculate t-test statistic and p-value
+    t_stat, p_value = ttest_ind(win, loss)
+    
+    # Calculate critical t-value from t-distribution
+    n1 = len(win)
+    n2 = len(loss)
+    dof = n1 + n2 - 2  # Degrees of freedom for independent two-sample t-test
+    critical_t = t.ppf(0.05, dof)  # Using 0.05 significance level
+    
+    print(f"T-test results for '{feature}': t-statistic={t_stat}, p-value={p_value}, critical t-value={critical_t}")
+
+
+# Step 6: Feature Adjustment (if necessary)
+# Let's say we decide to keep all features for simplicity
+
+# Step 7: Model Building and Evaluation
+# Let's build a linear regression model
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+# Predictions on the test set
+y_pred = model.predict(X_test)
+
+# Model evaluation
+mse = mean_squared_error(y_test, y_pred)
+print(f"Mean Squared Error: {mse}")
+
+# Step 8: Deployment and Monitoring
+# Deployment steps would depend on your production environment
