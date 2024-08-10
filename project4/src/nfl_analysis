@@ -5,19 +5,18 @@ Author: Syam Evani
 
 # Standard imports
 import os
-import time
 
 # Additional imports
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
-from sklearn.svm import SVC
-from sklearn.metrics import accuracy_score, classification_report
-import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
-from sklearn.feature_selection import SelectKBest, f_classif
 from scipy.stats import f
 from sklearn.linear_model import LinearRegression
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.svm import SVR
+from sklearn.neighbors import KNeighborsRegressor
 from sklearn.metrics import mean_squared_error
 from scipy.stats import t, ttest_ind
 
@@ -25,7 +24,7 @@ from scipy.stats import t, ttest_ind
 # None
 
 #----------------------------------------------------
-# Load and categorize data
+# Load data
 #----------------------------------------------------
 data = pd.read_csv(os.path.join(os.getenv('USERPROFILE'),'repos','mece-6397-doe','project4','data','games.csv'))
 
@@ -54,11 +53,14 @@ data = data.dropna(subset=selected_features)
 # Check on our data and see what factors we are considering now
 print(data.columns)
 
+#----------------------------------------------------
 # Categorize data
+#----------------------------------------------------
+# Clean up data to go from strings to enumerations
 cleanup_nums = {
                 "game_type": {"REG": 1, "WC": 2, "DIV":3, "CON":4, "SB":5},
                 "weekday": {"Monday": 1, "Tuesday":2, "Wednesday":3, "Thursday":4, "Friday":5, "Saturday":6, "Sunday":7},
-                "surface": {"sportturf":0, 'astroplay':0, 'grass':1, 'fieldturf':0, 'dessograss':1, 'a_turf':0, 'astroturf':0, 'grass ':1}
+                "surface": {"sportturf":0, 'astroplay':0, 'grass':1, 'fieldturf':0, 'dessograss':1, 'a_turf':0, 'astroturf':0, 'grass ':1},
                 }
 data = data.replace(cleanup_nums)
 
@@ -76,12 +78,22 @@ print(data.tail())
 X = data[selected_features]
 y = data['home_team_win']
 
+# Create a StandardScaler object
+scaler = StandardScaler()
+
+# Fit and transform the data
+X_normalized = scaler.fit_transform(X)
+
 # Splitting data into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X_normalized, y, test_size=0.2, random_state=42)
 
 #----------------------------------------------------
 # T-test
 #----------------------------------------------------
+t_results = {}
+print("-------------------------------------------")
+print("T Results")
+print("-------------------------------------------")
 for feature in selected_features:
     win = data[data['home_team_win'] == 1][feature]
     loss = data[data['home_team_win'] == 0][feature]
@@ -95,23 +107,34 @@ for feature in selected_features:
     dof = n1 + n2 - 2  # Degrees of freedom for independent two-sample t-test
     critical_t = t.ppf(0.05, dof)  # Using 0.05 significance level
     
-    print(f"T-test results for '{feature}': t-statistic={t_stat}, p-value={p_value}, critical t-value={critical_t}")
+    if p_value < 0.05 and abs(t_stat) > critical_t:
+        print(f"SIGNIFICANT: T-test results for '{feature}': t-statistic={t_stat}, p-value={p_value}, critical t-value={critical_t}")
+    else:
+        print(f"Not important: T-test results for '{feature}': t-statistic={t_stat}, p-value={p_value}, critical t-value={critical_t}")
 
 
-# Step 6: Feature Adjustment (if necessary)
-# Let's say we decide to keep all features for simplicity
+#----------------------------------------------------
+# Model developement
+#----------------------------------------------------
+models = {}
+results = {}
 
-# Step 7: Model Building and Evaluation
-# Let's build a linear regression model
-model = LinearRegression()
-model.fit(X_train, y_train)
+# Train different models
+models["lr"] = LinearRegression().fit(X_train, y_train)
+models["dtr"] = DecisionTreeRegressor().fit(X_train, y_train)
+models["rfr"] = RandomForestRegressor().fit(X_train, y_train)
+models["svr"] = SVR().fit(X_train, y_train)                         # Default rbf kernel, 3 degree polynomial kernel function, uses 1/(n_features) * X.var()) as gamma
+models["knn"]  = KNeighborsRegressor().fit(X_train, y_train)        # By default will use 5 neighbors
 
-# Predictions on the test set
-y_pred = model.predict(X_test)
+# Predict and calculate MSE
+for regressor in models:
+    y_pred = models[regressor].predict(X_test)
+    mse = mean_squared_error(y_test, y_pred)
 
-# Model evaluation
-mse = mean_squared_error(y_test, y_pred)
-print(f"Mean Squared Error: {mse}")
+    # Store the results
+    results[regressor] = mse
 
-# Step 8: Deployment and Monitoring
-# Deployment steps would depend on your production environment
+print("-------------------------------------------")
+print("Model Results")
+print("-------------------------------------------")
+print(results)
