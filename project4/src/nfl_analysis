@@ -74,6 +74,10 @@ print(data.tail())
 #----------------------------------------------------
 # Slice data into training and testing sets
 #----------------------------------------------------
+
+# Feature selection
+selected_features = ['spread_line', 'away_spread_odds', "home_spread_odds"]
+
 # Split training data
 X = data[selected_features]
 y = data['home_team_win']
@@ -111,7 +115,6 @@ for feature in selected_features:
         print(f"SIGNIFICANT: T-test results for '{feature}': t-statistic={t_stat}, p-value={p_value}, critical t-value={critical_t}")
     else:
         print(f"Not important: T-test results for '{feature}': t-statistic={t_stat}, p-value={p_value}, critical t-value={critical_t}")
-
 
 #----------------------------------------------------
 # Model developement
