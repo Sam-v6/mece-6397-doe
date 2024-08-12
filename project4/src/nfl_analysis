@@ -74,7 +74,6 @@ print(data.tail())
 #----------------------------------------------------
 # Slice data into training and testing sets
 #----------------------------------------------------
-
 # Feature selection
 selected_features = ['spread_line', 'away_spread_odds', "home_spread_odds"]
 
