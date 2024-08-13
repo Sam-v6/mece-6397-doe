@@ -1,5 +1,6 @@
 """
-Purpose: Project 5 - DOE with rocket engine properties and ML model to replicate CEA
+Purpose: Project 5
+Details: Conducts design of experiments with Pc, MR, and area ratio for GOX/GCH4 thruster and uses machine learning techniques to do ANOVA and create predictive models
 Author: Syam Evani
 """
 
@@ -7,22 +8,39 @@ Author: Syam Evani
 import os
 import random
 
-# Additional imports
+# General imports
 import numpy as np
 import itertools
 import pandas as pd
 from rocketcea.cea_obj import CEA_Obj
-from scipy.interpolate import griddata
-import matplotlib.pyplot as plt
+
+# Plotting imports
 import seaborn as sns
+import matplotlib.pyplot as plt
+
+# ML utils
+from scipy.interpolate import griddata
 from scipy.stats import f_oneway
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
+from sklearn.preprocessing import StandardScaler
+
+# Regressors imports
 from sklearn.linear_model import LinearRegression
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.svm import SVR
 from sklearn.neighbors import KNeighborsRegressor
-from sklearn.metrics import mean_squared_error
+from sklearn.ensemble import GradientBoostingRegressor, AdaBoostRegressor
+from xgboost import XGBRegressor
+from catboost import CatBoostRegressor
+from sklearn.linear_model import ElasticNet, Lasso, Ridge, BayesianRidge
+
+# NN imports
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.callbacks import EarlyStopping
 
 # Local imports
 # None
@@ -33,7 +51,7 @@ from sklearn.metrics import mean_squared_error
 # Three factors
 factors = ["pc", "mr", "e"]
 pc = np.linspace(50, 500, 10)   # [psia] Chamber pressure
-mr = np.linspace(1, 10, 10)    # [--]   Ratio of ox/fuel mass
+mr = np.linspace(1, 10, 10)     # [--]   Ratio of ox/fuel mass
 e = np.linspace(10, 100,10)     # [--]   Ratio of exit area to throat area
 
 # Generate all possible combinations
@@ -43,10 +61,11 @@ combinations = list(itertools.product(pc, mr, e))
 # Generate data and visuals to show the data
 #--------------------------------------------------------
 results = []
+random.seed(42)
 C = CEA_Obj( oxName='O2', fuelName='CH4')
 for i, design in enumerate(combinations):
     isp = C.get_Isp(Pc=design[0], MR=design[1], eps=design[2])   # [s] Specific impulse vacuum
-    isp = isp + random.randint(-15,15)                           # Add some randomness for artificial test noise
+    isp = isp + random.randint(-10,10)                           # Add some randomness for artificial test noise
     results.append((design[0], design[1], design[2], isp))
 
 # Convert results to a pandas df and output to text file
@@ -183,7 +202,6 @@ plt.tight_layout()
 plt.savefig(os.path.join(os.getenv('USERPROFILE'), 'repos', 'mece-6397-doe', 'project5', 'output', 'interaction_effects_heatmaps.png'))
 plt.close()
 
-
 #--------------------------------------------------------------------
 # Slice data into training and test
 #--------------------------------------------------------------------
@@ -192,56 +210,132 @@ X = isp_df[['pc', 'mr', 'e']].values.tolist()
 # Splitting the dataset into training and testing sets
 X_train, X_test, y_train, y_test = train_test_split(X, isp_df['isp'], test_size=0.2, random_state=42)
 
+# Scaling the data for some delicate regressors
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
 #--------------------------------------------------------------------
 # Apply different regression approaches
 #--------------------------------------------------------------------
-# Placeholder for results and best transformed features
-results = {"lr": [],        # Linear regression
-           "dtr": [],       # Decision tree regression
-           "rfr": [],       # Random forest regression
-           "svr": [],       # Support vector regression
-           "knn": []        # K-nearest neighbors regression
-            }
+# Init results dict
+results = {
+    "lr": [],            # Linear 
+    "dtr": [],           # Decision tree 
+    "rfr": [],           # Random forest 
+    "svr": [],           # Support vector 
+    "knn": [],           # K-nearest neighbors 
+    "gbr": [],           # Gradient boosting 
+    "xgbr": [],          # XGBoost 
+    "catbr": [],         # CatBoost 
+    "en": [],            # ElasticNet 
+    "lasso": [],         # Lasso 
+    "ridge": [],         # Ridge 
+    "bayesianridge": [], # Bayesian ridge 
+    "adaboost": []       # AdaBoost 
+}
+
 models = {}
 predictions = {}
+table = []
 best_transformed_features = None
 
-for i in range(len(design)):
+# Train different regression models
+models["lr"] = LinearRegression().fit(X_train, y_train)
+models["dtr"] = DecisionTreeRegressor().fit(X_train, y_train)
+models["rfr"] = RandomForestRegressor().fit(X_train, y_train)
+models["svr"] = SVR().fit(X_train, y_train)
+models["knn"] = KNeighborsRegressor().fit(X_train, y_train)
+models["gbr"] = GradientBoostingRegressor().fit(X_train, y_train)
+models["xgbr"] = XGBRegressor().fit(X_train, y_train)
+models["catbr"] = CatBoostRegressor(silent=True).fit(X_train, y_train)
+models["en"] = ElasticNet().fit(X_train, y_train)
+models["lasso"] = Lasso().fit(X_train, y_train)
+models["ridge"] = Ridge().fit(X_train, y_train)
+models["bayesianridge"] = BayesianRidge().fit(X_train, y_train)
+models["adaboost"] = AdaBoostRegressor().fit(X_train, y_train)
 
-    # Train a linear regression model
-    models["lr"] = LinearRegression().fit(X_train, y_train)
-    models["dtr"] = DecisionTreeRegressor().fit(X_train, y_train)
-    models["rfr"] = RandomForestRegressor().fit(X_train, y_train)
-    models["svr"] = SVR().fit(X_train, y_train)                         # Default rbf kernel, 3 degree polynomial kernel function, uses 1/(n_features) * X.var()) as gamma
-    models["knn"]  = KNeighborsRegressor().fit(X_train, y_train)        # By default will use 5 neighbors
-    
-    # Predict and calculate MSE
-    for regressor in models:
-        predictions[regressor] = models[regressor].predict(X_test)
-        mse = mean_squared_error(y_test, predictions[regressor])
-    
-        # Store the results
-        results[regressor].append((design[i], mse, predictions[regressor]))
+# Predict and calculate MSE
+for regressor in models:
+    predictions[regressor] = models[regressor].predict(X_test)
+    mse = mean_squared_error(y_test, predictions[regressor])
+
+    # Store the results
+    results[regressor].append((mse, predictions[regressor]))
 
 #--------------------------------------------------------------------
 # Post process and plot different regressors for comparison
 #--------------------------------------------------------------------
- # Plotting predictions against actual values
-plt.figure(figsize=(10, 6))
+# Init table for txt output
+table = []
 
 # Post-process different regression approaches
 for regressor in results:
-    # Find the design with the lowest MSE
-    min_mse_design, min_mse, best_predictions = min(results[regressor], key=lambda x: x[1])
+    # Extract the MSE and best predictions
+    min_mse, best_predictions = results[regressor][0]
 
-    # Print the design, MSE, and feature values with the lowest error
+    # Update table
+    table.append([regressor, min_mse])
+
+    # Print the MSE
     print(f"Regressor: {regressor}")
-    print(f"Design with lowest MSE: {min_mse_design}, MSE: {min_mse}")
+    print(f"MSE: {min_mse}")
 
+    # Plotting predictions against actual values
+    plt.figure(figsize=(10, 6))
     plt.scatter(y_test, best_predictions, alpha=0.7)
     plt.plot([min(y_test), max(y_test)], [min(y_test), max(y_test)], color='red', linestyle='--')
-    plt.xlabel("Actual values")
-    plt.ylabel("Predicted values")
-    plt.title(f"Predictions vs Actual for {regressor} with Design: {min_mse_design} and MSE: {"{:.5f}".format(min_mse)}")
-    plt.show()
-    #plt.savefig(os.path.join('hw1', 'output', regressor + ".png"))
+    plt.xlabel("Actual Isp")
+    plt.ylabel("Predicted Isp")
+    plt.title(f"Predictions vs Actual for {regressor} with MSE: {"{:.5f}".format(min_mse)}")
+    plt.savefig(os.path.join(os.getenv('USERPROFILE'), 'repos', 'mece-6397-doe', 'project5', 'output', 'regressors', regressor + '.png'))
+    plt.close()
+
+#--------------------------------------------------------------------
+# NN implementation
+#--------------------------------------------------------------------
+# Define the neural network model
+nn_model = Sequential()
+nn_model.add(Dense(64, input_dim=X_train.shape[1], activation='relu'))
+nn_model.add(Dense(32, activation='relu'))
+nn_model.add(Dense(1))  # Output layer for regression
+nn_model.compile(optimizer=Adam(learning_rate=0.01), loss='mean_squared_error')
+
+# Define early stopping callback
+early_stopping = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
+
+# Train the neural network with early stopping
+nn_model.fit(X_train, y_train, epochs=1000, batch_size=64, validation_split=0.2, callbacks=[early_stopping], verbose=0)
+
+# Predict and calculate MSE
+nn_predictions = nn_model.predict(X_test)
+nn_mse = mean_squared_error(y_test, nn_predictions)
+results["nn"] = [(nn_mse, nn_predictions)]
+
+# Print the design, MSE, and feature values with the lowest error
+print(f"Regressor: nn")
+print(f"MSE: {nn_mse}")
+
+# Update table
+table.append(['NN', nn_mse])
+
+# Plotting predictions against actual values
+plt.figure(figsize=(10, 6))
+plt.scatter(y_test, nn_predictions, alpha=0.7)
+plt.plot([min(y_test), max(y_test)], [min(y_test), max(y_test)], color='red', linestyle='--')
+plt.xlabel("Actual Isp")
+plt.ylabel("Predicted Isp")
+plt.title(f"Predictions vs Actual for NN with MSE: {"{:.5f}".format(nn_mse)}")
+plt.savefig(os.path.join(os.getenv('USERPROFILE'), 'repos', 'mece-6397-doe', 'project5', 'output', 'regressors', 'nn.png'))
+plt.close()
+
+#--------------------------------------------------------------------
+# Output summary table for various techniques
+#--------------------------------------------------------------------
+# Write the table to a text file
+output_file = os.path.join(os.getenv('USERPROFILE'), 'repos', 'mece-6397-doe', 'project5', 'output', 'regressors', 'regressor_results.txt')
+with open(output_file, 'w') as f:
+    f.write(f"{'Regressor':<20} {'MSE':<20}\n")
+    f.write("="*60 + "\n")
+    for row in table:
+        f.write(f"{row[0]:<20} {row[1]:<20.5f}\n")
